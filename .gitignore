@@ -40,4 +40,7 @@ Desktop.ini
 *.ncb
 
 # Ignore Content folder (große Dateien)
-Content/
+Content/__ExternalActors__
+Content/__ExternalObjects__
+Content/LowPolyFPSBundle
+Content/Prototyping
