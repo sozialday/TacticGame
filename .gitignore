@@ -1,0 +1,43 @@
+# Unreal Engine 5
+Saved/
+DerivedDataCache/
+Intermediate/
+Build/
+Binaries/
+.vscode/
+.vs/
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.xcodeproj/
+*.xcworkspace/
+*.xcuserstate
+*.idea/
+
+# Mac specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Crash reports
+*.dmp
+
+# Logs
+*.log
+
+# UE5 specific temp files
+*.pdb
+*.idb
+*.tlog
+*.obj
+*.iobj
+*.ipdb
+*.tcache
+*.ncb
+
+# Ignore Content folder (große Dateien)
+Content/
