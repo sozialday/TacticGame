@@ -44,4 +44,7 @@ private:
 	{
 		AddControllerYawInput(Rate);
 	}
+
+	void Fire(FKey Key);
+	void CancelAttack(FKey Key);
 };

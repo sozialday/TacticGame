@@ -44,7 +44,6 @@ void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement()
 	const auto& widget = CreateWidget<UAfterMoveInteractionBase>(GetWorld(), AfterMoveInteraction_ClassReferenceBlueprint);
 	if (widget)
 	{
-
 		widget->AddToViewport();
 	}
 }

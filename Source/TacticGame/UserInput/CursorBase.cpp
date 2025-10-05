@@ -556,12 +556,6 @@ void ACursorBase::Inspect_Unit(FKey Key)
 			FName("pelvis"));
 		m_InspectionRenderCapture->SetActorRelativeLocation(FVector(85, 260, 1));
 		m_InspectionRenderCapture->SetActorRelativeRotation(FRotator(0.0, -101.0, 90.0));
-
-
-		// m_InspectionRenderCapture->AttachToActor(Unit, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		//	//
-		/*m_InspectionRenderCapture->SetActorRelativeLocation(FVector(223.182479, 0.0, 49.613269));
-		m_InspectionRenderCapture->SetActorRelativeRotation(FRotator(0.0, 180.0, 0.0));*/
 	}
 
 	m_InspectionUI_Overlay = CreateWidget<UInspectionDetails_Window>(GetWorld(), m_InspectionUI_class);
