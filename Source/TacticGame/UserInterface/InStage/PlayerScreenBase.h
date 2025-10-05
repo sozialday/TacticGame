@@ -22,4 +22,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetVisibilityStatus(bool bVisible);
+
+	// Visibility Function - Animated Hiding/Showing
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ShowPlayerScreen();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void HidePlayerScreen();
 };

@@ -7,6 +7,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "TacticGame/UserInput/CursorBase.h"
+#include "TacticGame/UserInterface/InStage/PlayerScreenBase.h"
 #include "TacticGame/UserInterface/InStage/Specials/DistanceAttackWidgetBase.h"
 
 #include "GameFramework/SpringArmComponent.h"
@@ -104,6 +105,13 @@ void ADistanceAttackCameraController::CancelAttack(FKey Key)
 		GetWorldTimerManager().SetTimer(count, [playerController, this]()
 		{
 				Destroy();
+
+				// re show the ui [if on the cell of a character]
+				const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+				if (gamemode)
+				{
+					gamemode->GetPlayerScreen()->ShowPlayerScreen();
+				}
 
 		}, blendTime, false);
 	}
