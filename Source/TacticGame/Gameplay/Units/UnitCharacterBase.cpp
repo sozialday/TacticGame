@@ -25,6 +25,7 @@
 #include "TacticGame/Gameplay/Units/AdditionalComponents/HealthComponentBase.h"
 #include "TacticGame/Gameplay/Units/AdditionalComponents/InventoryComponentBase.h"
 
+#include "TacticGame/Gameplay/LevelPrerequisits/TacticGame_StageGamemodeBase.h"
 
 // Sets default values
 AUnitCharacterBase::AUnitCharacterBase()
@@ -255,5 +256,11 @@ void AUnitCharacterBase::MovementProcessFinished()
 	{
 		m_CurrentMovementPath->Destroy();
 		m_CurrentMovementPath = nullptr;
+	}
+
+	// make a request to the gamemode to show the ui 
+	if (const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		gamemode->ShowAfterMovementActionUIElement();
 	}
 }

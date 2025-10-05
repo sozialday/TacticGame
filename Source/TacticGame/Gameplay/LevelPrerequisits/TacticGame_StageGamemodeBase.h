@@ -23,11 +23,20 @@ public:
 		return PlayerScreen;
 	}
 
+	void ShowAfterMovementActionUIElement();
+
 private:
+
+	//		// Player Screen UI element
 
 	UPROPERTY()
 	TSubclassOf<class UPlayerScreenBase> PlayerScreen_ClassReferenceBlueprint = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<class UPlayerScreenBase> PlayerScreen = nullptr;
+
+	//		// After Move Interaction UI element
+
+	UPROPERTY()
+	TSubclassOf<class UAfterMoveInteractionBase> AfterMoveInteraction_ClassReferenceBlueprint = nullptr;
 };
