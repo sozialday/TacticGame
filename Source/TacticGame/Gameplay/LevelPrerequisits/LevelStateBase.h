@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+
+#include "TacticGame/Gameplay/TurnBasedGameManager.h"
 #include "LevelStateBase.generated.h"
 
 // global enum which will store the current path selection type
@@ -27,6 +31,9 @@ class TACTICGAME_API ALevelStateBase : public AGameStateBase
 	}
 
 private:
+
+	// reference to the game manager
+	static TObjectPtr<class ATurnBasedGameManager> m_GameManager;
 
 	// global Grid Size
 	static float GridSize;
@@ -92,6 +99,22 @@ public:
 	{
 		const float gridSize_halfed = GetLevelGridSize() / 2;
 		return FVector2D(gridSize_halfed);
+	}
+
+
+	UFUNCTION(BlueprintPure, Category = "Level")
+	static class ATurnBasedGameManager* GetGameManager(UWorld* WorldContext)
+	{
+		if (m_GameManager)
+			return m_GameManager;
+
+		if (!WorldContext)
+			return nullptr;
+
+		const auto& foundManager = UGameplayStatics::GetActorOfClass(WorldContext, ATurnBasedGameManager::StaticClass());
+		m_GameManager = Cast<ATurnBasedGameManager>(foundManager);
+
+		return m_GameManager;
 	}
 
 

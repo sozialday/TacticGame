@@ -56,9 +56,9 @@ public:
 	// REPLACE THE ARROW WITH AN ACTUAL MODELL THAT YOU CAN MANIPULATE IN CODE
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetArrowDistanceSpeed(float NewZTarget);
+	void SetCursorArrowDistanceSpeed(float NewZTarget);
 	UFUNCTION(BlueprintImplementableEvent)
-	void ResetArrowDistance();
+	void ResetCursorArrowDistance();
 
 protected:
 	// Called when the game starts or when spawned
@@ -113,7 +113,8 @@ private:
 			{
 				if (const auto& playerscreen = m_GamemodeReference->GetPlayerScreen())
 				{
-					playerscreen->SetVisibilityStatus(true);
+					playerscreen->ShowPlayerScreen();
+					// playerscreen->SetVisibilityStatus(true);
 				}
 			}
 			if (m_InspectionUI_Overlay)

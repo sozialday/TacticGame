@@ -78,7 +78,7 @@ public:
 	void MoveAlongTrack();
 
 	// called when the character is done moving
-	void MovementProcessFinished();
+	void MovementProcessFinished(bool RequestAfterMoveInteraction = true);
 
 	// retrieves the unit data
 

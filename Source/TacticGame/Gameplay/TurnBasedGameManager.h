@@ -15,5 +15,51 @@ public:
 	// Sets default values for this actor's properties
 	ATurnBasedGameManager();
 
+	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable)
+	void TryTurn(class AUnitCharacterBase* unit, bool isEnemy = false);
+
+	// clears the lists of units that had their turn already
+	// used to start a new round
+	UFUNCTION(BlueprintCallable)
+	void ResetTurnLists()
+	{
+		m_AllyUnitsThatHadTurn.Empty();
+		m_EnemyUnitsThatHadTurn.Empty();
+	}
+
+	UFUNCTION(BlueprintPure)
+	int GetNumAllyUnitsThatHaveATurnLeft() const
+	{
+		return m_AllAllyUnits.Num() - m_AllyUnitsThatHadTurn.Num();
+	}
+
+	void AddTurnToList(class AUnitCharacterBase* unit, bool isEnemy = false);
+	bool VerifyIfUnitCanTakeTurn(class AUnitCharacterBase* unit, bool isEnemy = false);
+
+private:
+
+	// A FUNCTION THAT RETURNS TRUE IF ALL UNITS OF THE GIVEN FACTION HAVE TAKEN THEIR TURN ALREADY
+
+private:
+
+	UPROPERTY(EditInstanceOnly, meta = (AllowPrivateAccess = "true", DisplayName = "Auto Find All Units"))
+	uint8 m_AutoFindAllUnits : 1;
+
+	UPROPERTY(EditInstanceOnly, meta = (AllowPrivateAccess = "true", EditCondition = "m_AutoFindAllUnits == false"))
+	TArray<class AUnitCharacterBase*> AllyUnits;
+
+	UPROPERTY(EditInstanceOnly, meta = (AllowPrivateAccess = "true", EditCondition = "m_AutoFindAllUnits == false"))
+	TArray<class AUnitCharacterBase*> EnemyUnits;
+
+private:
+
+	TArray<TObjectPtr<class AUnitCharacterBase>> m_AllAllyUnits;
+	TArray<TObjectPtr<class AUnitCharacterBase>> m_AllEnemyUnits;
+
+	// units that had their turn already [starts empty each round]
+
+	TArray<TObjectPtr<class AUnitCharacterBase>> m_AllyUnitsThatHadTurn;
+	TArray<TObjectPtr<class AUnitCharacterBase>> m_EnemyUnitsThatHadTurn;
 };

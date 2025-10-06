@@ -304,7 +304,7 @@ void ACursorBase::Tick(float DeltaTime)
 				if (m_CachedCellSelectionPlane)
 					m_CachedCellSelectionPlane->StartMovement();
 
-				ResetArrowDistance();
+				ResetCursorArrowDistance();
 			}
 		}
 
@@ -446,6 +446,14 @@ void ACursorBase::SelectCell(FKey Key)
 		m_SelectedUnit->ReleaseUnit();
 		m_successfulSelection = false;
 
+		auto* gameManager = ALevelStateBase::GetGameManager(GetWorld());
+		if (!gameManager)
+			return;
+
+		// applies the movement of the unit [request to the gamemanager class]
+		// makes it so that the unit cannot be selected again this turn
+		gameManager->TryTurn(m_SelectedUnit, false);
+
 		if (m_CachedCellSelectionPlane)
 			m_CachedCellSelectionPlane->SetPlaneColour();
 
@@ -458,14 +466,22 @@ void ACursorBase::SelectCell(FKey Key)
 	{
 		FName SelectedHit;
 		const FHitResult HitSingle = TraceCellAsBox(GetWorld(), this, SelectedHit);
-		if (const auto& Actor = HitSingle.GetActor())
+		if (const auto& Unit = Cast<AUnitCharacterBase>(HitSingle.GetActor()))
 		{
 			// if the actor is an ally unit
-			if (!Actor->ActorHasTag(ALevelStateBase::GetTag_Characters_Allies()))
+			if (!Unit->ActorHasTag(ALevelStateBase::GetTag_Characters_Allies()))
+				return;
+
+			auto* gameManager = ALevelStateBase::GetGameManager(GetWorld());
+			if (!gameManager)
+				return;
+
+			// check if the unit can even be selected [request to the gamemanager class]
+			if (!gameManager->VerifyIfUnitCanTakeTurn(Unit, false))
 				return;
 
 			// the character is an ally unit
-			m_SelectedUnit = Cast<AUnitCharacterBase>(Actor);
+			m_SelectedUnit = Unit;
 			m_SelectedUnit->PickUnit();
 			m_successfulSelection = true;
 
@@ -487,7 +503,7 @@ void ACursorBase::DeselectCell(FKey Key)
 		GridInWorld->ClearAllCells();
 
 	m_SelectedUnit->Cancel();
-	m_SelectedUnit->MovementProcessFinished();
+	m_SelectedUnit->MovementProcessFinished(false);
 
 	m_SelectedUnit = nullptr;
 	m_successfulSelection = false;
@@ -542,7 +558,8 @@ void ACursorBase::Inspect_Unit(FKey Key)
 	m_GamemodeReference = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (const auto& playerscreen = m_GamemodeReference->GetPlayerScreen())
 	{
-		playerscreen->SetVisibilityStatus(false);
+		playerscreen->HidePlayerScreen();
+		// playerscreen->SetVisibilityStatus(false);
 	}
 
 	// render capturer spawning + setup
@@ -664,7 +681,7 @@ void ACursorBase::CheckUnitOnField(FHitResult HitResult, FName TagSelected)
 		if (m_CachedCellSelectionPlane)
 			m_CachedCellSelectionPlane->StopMovement();
 
-		SetArrowDistanceSpeed(-20);
+		SetCursorArrowDistanceSpeed(-20);
 
 		float sphere_radius = UnitReference->GetSphereRadius();
 		FVector box_extend = UnitReference->GetBoxExtend();

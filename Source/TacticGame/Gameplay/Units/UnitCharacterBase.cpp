@@ -233,7 +233,7 @@ void AUnitCharacterBase::MoveAlongTrack()
 
 	m_enableTickingMovement = true;
 }
-void AUnitCharacterBase::MovementProcessFinished()
+void AUnitCharacterBase::MovementProcessFinished(bool RequestAfterMoveInteraction)
 {
 	if (!m_CurrentCursor)
 		m_CurrentCursor = Cast<ACursorBase>(UGameplayStatics::GetActorOfClass(GetWorld(), ACursorBase::StaticClass()));
@@ -258,9 +258,12 @@ void AUnitCharacterBase::MovementProcessFinished()
 		m_CurrentMovementPath = nullptr;
 	}
 
-	// make a request to the gamemode to show the ui 
-	if (const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+	if (RequestAfterMoveInteraction)
 	{
-		gamemode->ShowAfterMovementActionUIElement();
+		// make a request to the gamemode to show the ui 
+		if (const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+		{
+			gamemode->ShowAfterMovementActionUIElement();
+		}
 	}
 }

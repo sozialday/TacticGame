@@ -6,6 +6,9 @@
 
 #include "TacticGame/Gameplay/Units/Movement/MovementPath.h"
 
+// Definition der statischen Variable [Referenz zum Game Manager]
+TObjectPtr<class ATurnBasedGameManager> ALevelStateBase::m_GameManager = nullptr;
+
 // Definition der statischen Variable [Globale Grid Groesse]
 float ALevelStateBase::GridSize = 180.0f;
 
