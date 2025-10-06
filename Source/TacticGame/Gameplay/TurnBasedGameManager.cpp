@@ -61,6 +61,12 @@ void ATurnBasedGameManager::TryTurn(AUnitCharacterBase* unit, bool isEnemy)
 	AddTurnToList(unit, isEnemy);
 
 	// check if all units had their turn already
+	if (AllUnitsOfFactionHadTurn(isEnemy))
+	{
+		// if all units of the faction had their turn already
+		// reset the list of units that had their turn already
+		UE_LOG(LogTemp, Warning, TEXT("All units of faction had their turn already. Resetting turn list."));
+	}
 }
 
 // adds a unit to the turn list making it not able to take another turn until all other units had their turn

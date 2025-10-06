@@ -42,6 +42,20 @@ private:
 
 	// A FUNCTION THAT RETURNS TRUE IF ALL UNITS OF THE GIVEN FACTION HAVE TAKEN THEIR TURN ALREADY
 
+	bool AllUnitsOfFactionHadTurn(bool isEnemy = false) const
+	{
+		if (isEnemy)
+		{
+			// if the number of enemy units that had their turn already is equal to the total number of enemy units
+			return m_EnemyUnitsThatHadTurn.Num() >= m_AllEnemyUnits.Num();
+		}
+		else
+		{
+			// if the number of ally units that had their turn already is equal to the total number of ally units
+			return m_AllyUnitsThatHadTurn.Num() >= m_AllAllyUnits.Num();
+		}
+	}
+
 private:
 
 	UPROPERTY(EditInstanceOnly, meta = (AllowPrivateAccess = "true", DisplayName = "Auto Find All Units"))
