@@ -78,6 +78,8 @@ void AGameplayCameraBase::Tick(float DeltaTime)
 		return;
 	}
 
+	// CAMERA TRANSLATION //
+
 	if (m_customCameraMovement)
 	{
 		SetActorLocation(m_CameraLocation);
@@ -90,6 +92,8 @@ void AGameplayCameraBase::Tick(float DeltaTime)
 			CalculateNewActorLocation(m_Cursor, m_CameraOffset, m_CameraDistanceToCursor), DeltaTime, 6.5));
 
 	}
+
+	// CAMERA ROTATION //
 
 	// smooth camera rotation to desired rotation
 	SetActorRotation(FMath::RInterpTo(GetActorRotation(), m_TargetCameraRotation, DeltaTime, 3.5));

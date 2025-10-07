@@ -169,15 +169,19 @@ public:
 	{
 		return m_customCameraMovement;
 	}
+
+	UFUNCTION(BlueprintCallable)
 	void SetCustomCameraMovement(bool EnableUseCustomCameraMovement = false)
 	{
 		m_customCameraMovement = EnableUseCustomCameraMovement;
 	}
 	
+	UFUNCTION(BlueprintCallable)
 	void SetCustomCameraLocation(FVector CameraLocation)
 	{
 		m_CameraLocation = CameraLocation;
 	}
+	UFUNCTION(BlueprintCallable)
 	void SetCustomCameraRotation(FRotator CameraRotation)
 	{
 		m_CameraRotation = CameraRotation;

@@ -36,7 +36,7 @@ public:
 	}
 
 	void AddTurnToList(class AUnitCharacterBase* unit, bool isEnemy = false);
-	bool VerifyIfUnitCanTakeTurn(class AUnitCharacterBase* unit, bool isEnemy = false);
+	bool VerifyIfUnitCanTakeTurn(TObjectPtr<class AUnitCharacterBase> unit, bool isEnemy = false);
 
 private:
 

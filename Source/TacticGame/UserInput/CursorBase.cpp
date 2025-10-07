@@ -486,7 +486,7 @@ void ACursorBase::SelectCell(FKey Key)
 			m_successfulSelection = true;
 
 			if (m_CachedCellSelectionPlane)
-				m_CachedCellSelectionPlane->SetPlaneColour(FColor::FromHex("FFD04BFF")/*FColor::Red*/);
+				m_CachedCellSelectionPlane->SetPlaneColour(FColor::FromHex("FFD04BFF"));
 		}
 	}
 }

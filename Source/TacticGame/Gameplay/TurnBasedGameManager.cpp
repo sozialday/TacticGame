@@ -43,8 +43,6 @@ void ATurnBasedGameManager::BeginPlay()
 						m_AllEnemyUnits.Add(unit);
 					else if (tagSingle == ALevelStateBase::GetTag_Characters_Allies())
 						m_AllAllyUnits.Add(unit);
-
-					UE_LOG(LogTemp, Warning, TEXT("Found Unit : %s"), *unit->GetName());
 				}
 			}
 		}
@@ -72,37 +70,37 @@ void ATurnBasedGameManager::TryTurn(AUnitCharacterBase* unit, bool isEnemy)
 // adds a unit to the turn list making it not able to take another turn until all other units had their turn
 void ATurnBasedGameManager::AddTurnToList(AUnitCharacterBase* unit, bool isEnemy)
 {
-	if (!unit)
+	if (!IsValid(unit))
 		return;
 
 	if (isEnemy)
 	{
 		// adds the enemy unit to the list of units that had their turn already
-		if (!m_EnemyUnitsThatHadTurn.Contains(unit))
-			m_EnemyUnitsThatHadTurn.Add(unit);
+		m_EnemyUnitsThatHadTurn.Add(unit);
 	}
 	else
 	{
 		// adds the ally unit to the list of units that had their turn already
-		if (!m_AllyUnitsThatHadTurn.Contains(unit))
-			m_AllyUnitsThatHadTurn.Add(unit);
+		m_AllyUnitsThatHadTurn.Add(unit);
 	}
 }
 
 // checks if a unit is allowed to take its turn
-bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(AUnitCharacterBase* unit, bool isEnemy)
+bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(TObjectPtr<class AUnitCharacterBase> unit, bool isEnemy)
 {
-	// THIS METHOD SOMETIMES CRASHES ON LINE 106
+	// THIS METHOD SOMETIMES CRASHES ON LINE 112
 
-	if (!unit)
+	UE_LOG(LogTemp, Warning, TEXT("Verifying if unit %s can take its turn."), IsValid(unit) ? *unit->GetName() : TEXT("Invalid Unit"));
+
+	if (!IsValid(unit))
 		return false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Unit %s is valid."), *unit->GetName());
 
 	if (isEnemy)	// enemy
 	{
-		// if the unit is not in the list of all enemy units it cannot take a turn
-		if (!m_AllEnemyUnits.Contains(unit))
-			return false;
-		
+		UE_LOG(LogTemp, Warning, TEXT("Unit %s is in the list of enemy units that had their turn already."), *unit->GetName());
+
 		// if you had your turn already this round you cannot take another one
 		if (m_EnemyUnitsThatHadTurn.Contains(unit))
 			return false;
@@ -110,13 +108,13 @@ bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(AUnitCharacterBase* unit, bo
 	}
 	else			// ally
 	{
-		// if the unit is not in the list of all ally units it cannot take a turn
-		if (!m_AllAllyUnits.Contains(unit))
-			return false;
-		
+		UE_LOG(LogTemp, Warning, TEXT("Unit %s is in the list of ally units that had their turn already."), *unit->GetName());
+
 		// if you had your turn already this round you cannot take another one
 		if (m_AllyUnitsThatHadTurn.Contains(unit))
 			return false;
+
+		UE_LOG(LogTemp, Warning, TEXT("Unit %s is allowed to take its turn."), *unit->GetName());
 	}
 
 	return true;

@@ -28,6 +28,11 @@ ADistanceAttackCameraController::ADistanceAttackCameraController()
 	SpringArmComponent->ProbeChannel = ECC_Visibility;
 	SpringArmComponent->bUsePawnControlRotation = true;
 
+
+	CameraTip = CreateDefaultSubobject<USceneComponent>(TEXT("CameraTip"));
+	CameraTip->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+
+
 	CameraComponent = CreateDefaultSubobject<UCineCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	//
@@ -82,7 +87,6 @@ void ADistanceAttackCameraController::Fire(FKey Key)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 }
-
 void ADistanceAttackCameraController::CancelAttack(FKey Key)
 {
 	float blendTime = 0.55f;

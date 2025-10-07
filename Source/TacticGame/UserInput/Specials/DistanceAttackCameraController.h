@@ -24,6 +24,12 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintPure)
+	class USceneComponent* GetSpringArmTip() const
+	{
+		return CameraTip;
+	}
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -31,6 +37,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCineCameraComponent> CameraComponent;
+
+	TObjectPtr<class USceneComponent> CameraTip = nullptr;
 
 private:
 
