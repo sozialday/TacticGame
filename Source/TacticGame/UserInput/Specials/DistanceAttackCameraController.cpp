@@ -4,6 +4,7 @@
 #include "DistanceAttackCameraController.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "TacticGame/UserInput/CursorBase.h"
@@ -64,7 +65,7 @@ void ADistanceAttackCameraController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
+	m_AllowCameraTransformationCalculation = true;
 }
 
 // smoothly interpolates the camera to the desired location and rotation
@@ -75,29 +76,13 @@ void ADistanceAttackCameraController::Tick(float DeltaTime)
 	if (!IsValid(CameraComponent))
 		return;
 
-	const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!IsValid(playerController))
-		return;
-
-	FTransform CameraTransform = CameraComponent->GetRootComponent()->GetRelativeTransform();
-	FTransform targetTransform;
-
-	targetTransform.SetLocation(FMath::VInterpTo(CameraTransform.GetLocation(), FVector::ZeroVector, DeltaTime, 9));
-	targetTransform.SetRotation(FMath::RInterpTo(CameraTransform.GetRotation().Rotator(), FRotator::ZeroRotator, DeltaTime, 5.5).Quaternion());
-
-
-	CameraComponent->SetActorRelativeTransform(targetTransform);
-
-	// check if the camera is close enough to the target location and rotation to then snap it to it
-
-	if (FVector::Distance(CameraTransform.GetLocation(), FVector::ZeroVector) < 0.05f &&
-		CameraTransform.GetRotation().Equals(FQuat::Identity, 0.01f))
+	if (m_AllowCameraTransformationCalculation)
 	{
-		CameraComponent->SetActorRelativeLocation(FVector::ZeroVector);
-		CameraComponent->SetActorRelativeRotation(FRotator::ZeroRotator);
-
-		CameraComponent = nullptr;	// release the reference so that the camera is not moved anymore
+		TickCameraTransformation(DeltaTime);
 	}
+
+	// traces the distance from the camera to the a unit and sets the depth of field accordingly
+	TickCameraDepthOfField(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -158,4 +143,62 @@ void ADistanceAttackCameraController::CancelAttack(FKey Key)
 
 		}, blendTime, false);
 	}
+}
+
+// calculates the camera transformation each tick [smooth interpolation to its origin and rotation]
+void ADistanceAttackCameraController::TickCameraTransformation(float DeltaSeconds)
+{
+	const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(playerController))
+		return;
+
+	FTransform CameraTransform = CameraComponent->GetRootComponent()->GetRelativeTransform();
+	FTransform targetTransform;
+
+	targetTransform.SetLocation(FMath::VInterpTo(CameraTransform.GetLocation(), FVector::ZeroVector, DeltaSeconds, 9));
+	targetTransform.SetRotation(FMath::RInterpTo(CameraTransform.GetRotation().Rotator(), FRotator::ZeroRotator, DeltaSeconds, 5.5).Quaternion());
+
+
+	CameraComponent->SetActorRelativeTransform(targetTransform);
+
+	UE_LOG(LogTemp, Warning, TEXT("Camera Location: %s"), *CameraTransform.GetLocation().ToString());
+
+	// check if the camera is close enough to the target location and rotation to then snap it to it
+
+	if (FVector::Distance(CameraTransform.GetLocation(), FVector::ZeroVector) < 0.05f &&
+		CameraTransform.GetRotation().Equals(FQuat::Identity, 0.01f))
+	{
+		CameraComponent->SetActorRelativeLocation(FVector::ZeroVector);
+		CameraComponent->SetActorRelativeRotation(FRotator::ZeroRotator);
+
+		m_AllowCameraTransformationCalculation = false;	// stop ticking -> without removing the camera reference, as it is needed for the depth of field calculations
+	}
+}
+
+// adjusts the depth of field of the camera based on the distance to the target unit
+void ADistanceAttackCameraController::TickCameraDepthOfField(float DeltaSeconds)
+{
+	FHitResult HitResult;
+	const FVector End = CameraComponent->GetActorLocation() + (CameraComponent->GetActorForwardVector() * 10000.0f);
+
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(),
+		CameraComponent->GetActorLocation(), End,
+		{ EObjectTypeQuery::ObjectTypeQuery8 }, false, {}, EDrawDebugTrace::None, HitResult, true))
+	{
+		if (IsValid(HitResult.GetActor()))
+		{
+			// Camera Focus Distance
+
+			FCameraFocusSettings focusSettings = CameraComponent->GetCineCameraComponent()->FocusSettings;
+			focusSettings.ManualFocusDistance = FMath::FInterpTo(focusSettings.ManualFocusDistance, HitResult.Distance, DeltaSeconds, 13.0);
+
+			CameraComponent->GetCineCameraComponent()->FocusSettings = focusSettings;
+
+		}
+	}
+
+	// Camera Aperture
+
+	const float Aperture = FMath::FInterpTo(CameraComponent->GetCineCameraComponent()->CurrentAperture, 1.6, DeltaSeconds, 4.0);
+	CameraComponent->GetCineCameraComponent()->CurrentAperture = Aperture;
 }

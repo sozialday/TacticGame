@@ -76,7 +76,10 @@ private:
 	TObjectPtr<class USceneComponent> CameraTip = nullptr;
 
 	// Gameplay Camera Reference -> will be attached to the spring arm and then smoothly moved to the desired location
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AGameplayCameraBase> CameraComponent = nullptr;
+
+	bool m_AllowCameraTransformationCalculation = true;
 
 private:
 
@@ -93,4 +96,7 @@ private:
 
 	void Fire(FKey Key);
 	void CancelAttack(FKey Key);
+
+	void TickCameraTransformation(float DeltaSeconds);
+	void TickCameraDepthOfField(float DeltaSeconds);
 };
