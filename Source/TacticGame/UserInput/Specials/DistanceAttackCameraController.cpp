@@ -82,15 +82,15 @@ void ADistanceAttackCameraController::Tick(float DeltaTime)
 	FTransform CameraTransform = CameraComponent->GetRootComponent()->GetRelativeTransform();
 	FTransform targetTransform;
 
-	targetTransform.SetLocation(FMath::VInterpTo(CameraTransform.GetLocation(), FVector::ZeroVector, DeltaTime, 7));
-	targetTransform.SetRotation(FMath::RInterpTo(CameraTransform.GetRotation().Rotator(), FRotator::ZeroRotator, DeltaTime, 7).Quaternion());
+	targetTransform.SetLocation(FMath::VInterpTo(CameraTransform.GetLocation(), FVector::ZeroVector, DeltaTime, 9));
+	targetTransform.SetRotation(FMath::RInterpTo(CameraTransform.GetRotation().Rotator(), FRotator::ZeroRotator, DeltaTime, 5.5).Quaternion());
 
 
 	CameraComponent->SetActorRelativeTransform(targetTransform);
 
 	// check if the camera is close enough to the target location and rotation to then snap it to it
 
-	if (FVector::Distance(CameraTransform.GetLocation(), FVector::ZeroVector) < 1.0f &&
+	if (FVector::Distance(CameraTransform.GetLocation(), FVector::ZeroVector) < 0.05f &&
 		CameraTransform.GetRotation().Equals(FQuat::Identity, 0.01f))
 	{
 		CameraComponent->SetActorRelativeLocation(FVector::ZeroVector);

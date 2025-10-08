@@ -3,10 +3,17 @@
 
 #include "TacticGame_StageGamemodeBase.h"
 
-#include "Blueprint/UserWidget.h"
+#include "Components/SizeBox.h"
 
+#include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
+#include "Kismet/GameplayStatics.h"
+
+#include "TacticGame/Gameplay/Units/UnitCharacterBase.h"
 #include "TacticGame/UserInterface/InStage/PlayerScreenBase.h"
 #include "TacticGame/UserInterface/InStage/AfterMoveInteractionBase.h"
+
 
 ATacticGame_StageGamemodeBase::ATacticGame_StageGamemodeBase()
 {
@@ -39,11 +46,33 @@ void ATacticGame_StageGamemodeBase::PostLogin(APlayerController* NewPlayer)
 }
 
 // creates and displays a ui element that allows the player to choose what to do after moving
-void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement()
+void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement(TObjectPtr<class AUnitCharacterBase> UnitReference)
 {
 	const auto& widget = CreateWidget<UAfterMoveInteractionBase>(GetWorld(), AfterMoveInteraction_ClassReferenceBlueprint);
 	if (widget)
 	{
+		const auto& pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (!pawn)
+			return;
+
+		const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (!playerController)
+			return;
+
+		FVector worldLocation = UnitReference->GetActorLocation();
+		{
+			worldLocation += (pawn->GetActorRightVector() * 90.0f);
+			worldLocation += FVector(0, 0, 150.0f);
+		}
+
+		// adjust transformation of the widget
+		FVector2D RenderTranslation;
+		if (UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(playerController, worldLocation, RenderTranslation, false))
+		{
+			// adjust the position of the ui element based on the world location of the unit
+			widget->GetSizeBox_Container()->SetRenderTranslation(RenderTranslation);
+		}
+		
 		widget->AddToViewport();
 	}
 }

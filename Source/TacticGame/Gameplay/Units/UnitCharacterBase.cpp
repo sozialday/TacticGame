@@ -263,7 +263,7 @@ void AUnitCharacterBase::MovementProcessFinished(bool RequestAfterMoveInteractio
 		// make a request to the gamemode to show the ui 
 		if (const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld())))
 		{
-			gamemode->ShowAfterMovementActionUIElement();
+			gamemode->ShowAfterMovementActionUIElement(this);
 		}
 	}
 }

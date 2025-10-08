@@ -23,7 +23,7 @@ public:
 		return PlayerScreen;
 	}
 
-	void ShowAfterMovementActionUIElement();
+	void ShowAfterMovementActionUIElement(TObjectPtr<class AUnitCharacterBase> UnitReference);
 
 private:
 

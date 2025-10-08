@@ -14,4 +14,8 @@ class TACTICGAME_API UAfterMoveInteractionBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintPure)
+	class USizeBox* GetSizeBox_Container() const;
 };
