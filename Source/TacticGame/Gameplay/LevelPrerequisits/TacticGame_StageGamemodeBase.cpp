@@ -49,11 +49,11 @@ void ATacticGame_StageGamemodeBase::PostLogin(APlayerController* NewPlayer)
 void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement(TObjectPtr<class AUnitCharacterBase> UnitReference)
 {
 	const auto& widget = CreateWidget<UAfterMoveInteractionBase>(GetWorld(), AfterMoveInteraction_ClassReferenceBlueprint);
-	if (widget)
-	{
-		const FVector2D WidgetPosition = widget->CalculateWidgetPositioning(UnitReference);
-		widget->GetSizeBox_Container()->SetRenderTranslation(WidgetPosition);
-		
-		widget->AddToViewport();
-	}
+	if (!IsValid(widget))
+		return;
+
+	const FVector2D WidgetPosition = widget->CalculateWidgetPositioning(UnitReference);
+	widget->GetSizeBox_Container()->SetRenderTranslation(WidgetPosition);
+
+	widget->AddToViewport();
 }

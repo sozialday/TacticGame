@@ -9,14 +9,20 @@
 
 FVector2D UAfterMoveInteractionBase::CalculateWidgetPositioning(class AUnitCharacterBase* Unit)
 {
+	// unit reference to use for the calculation
+	TObjectPtr<class AUnitCharacterBase> UnitToUse = Unit;
+
 	if (!IsValid(Unit))
 	{
 		if (!IsValid(m_UnitReference))
 			return FVector2D();
+
+		UnitToUse = m_UnitReference;
 	}
 	else
 	{
 		m_UnitReference = Unit;
+		UnitToUse = Unit;
 	}
 	
 
@@ -28,7 +34,7 @@ FVector2D UAfterMoveInteractionBase::CalculateWidgetPositioning(class AUnitChara
 	if (!playerController)
 		return FVector2D();
 
-	FVector worldLocation = Unit->GetActorLocation();
+	FVector worldLocation = UnitToUse->GetActorLocation();
 	{
 		worldLocation += (pawn->GetActorRightVector() * 90.0f);
 		worldLocation += FVector(0, 0, 150.0f);
