@@ -47,6 +47,9 @@ void ATurnBasedGameManager::BeginPlay()
 			}
 		}
 	}
+
+	m_AllyUnitsThatHadTurn.Empty();
+	m_EnemyUnitsThatHadTurn.Empty();
 }
 
 // tries to let a unit take its turn if it is allowed to do so
@@ -85,6 +88,19 @@ void ATurnBasedGameManager::AddTurnToList(AUnitCharacterBase* unit, bool isEnemy
 	}
 }
 
+// loops through an array and checks if it contains a specific unit
+bool ArrayContains(const TArray<TObjectPtr<AUnitCharacterBase>>& array, TObjectPtr<AUnitCharacterBase> unit)
+{
+	for (const auto& element : array)
+	{		
+		if (element == unit)
+			return true;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Unit %s not found in array."), IsValid(unit) ? *unit->GetName() : TEXT("Invalid Unit"));
+	return false;
+}
+
 // checks if a unit is allowed to take its turn
 bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(TObjectPtr<class AUnitCharacterBase> unit, bool isEnemy)
 {
@@ -99,22 +115,20 @@ bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(TObjectPtr<class AUnitCharac
 
 	if (isEnemy)	// enemy
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Unit %s is in the list of enemy units that had their turn already."), *unit->GetName());
-
 		// if you had your turn already this round you cannot take another one
-		if (m_EnemyUnitsThatHadTurn.Contains(unit))
+		if (ArrayContains(m_EnemyUnitsThatHadTurn, unit))
 			return false;
-			
+
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Unit %s is allowed to take its turn."), *unit->GetName());
+
 	}
 	else			// ally
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Unit %s is in the list of ally units that had their turn already."), *unit->GetName());
-
 		// if you had your turn already this round you cannot take another one
-		if (m_AllyUnitsThatHadTurn.Contains(unit))
+		if (ArrayContains(m_AllyUnitsThatHadTurn, unit))
 			return false;
 
-		UE_LOG(LogTemp, Warning, TEXT("Unit %s is allowed to take its turn."), *unit->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Ally Unit %s is allowed to take its turn."), *unit->GetName());
 	}
 
 	return true;

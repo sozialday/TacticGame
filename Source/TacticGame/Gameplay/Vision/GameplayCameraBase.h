@@ -127,6 +127,12 @@ private:
 
 public:
 
+	// retrieves the root component of this actor
+	TObjectPtr<class USceneComponent> GetRootComponent() const
+	{
+		return Super::GetRootComponent();
+	}
+
 	// adjusts the zooming offset added to the camera location every frame
 	void SetCameraZoomingOffset(FVector NewOffset) 
 	{
@@ -168,6 +174,12 @@ public:
 	bool GetCustomCameraMovement() const
 	{
 		return m_customCameraMovement;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetTickingEnabled(bool EnableTicking = false)
+	{
+		m_enableTicking = EnableTicking;
 	}
 
 	UFUNCTION(BlueprintCallable)

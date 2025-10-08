@@ -33,30 +33,30 @@ ADistanceAttackCameraController::ADistanceAttackCameraController()
 	CameraTip->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 
 
-	CameraComponent = CreateDefaultSubobject<UCineCameraComponent>(TEXT("CameraComponent"));
-	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	//
-	FCameraFilmbackSettings FilmbackSettings;
-	FilmbackSettings.SensorWidth = 70.410004;
-	FilmbackSettings.SensorHeight = 56.630001;
+	//CameraComponent = CreateDefaultSubobject<UCineCameraComponent>(TEXT("CameraComponent"));
+	//CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	////
+	//FCameraFilmbackSettings FilmbackSettings;
+	//FilmbackSettings.SensorWidth = 70.410004;
+	//FilmbackSettings.SensorHeight = 56.630001;
 
-	FCameraLensSettings CameraLensSettings;
-	CameraLensSettings.MinFocalLength = 50.0f;
-	CameraLensSettings.MaxFocalLength = 50.0f;
-	CameraLensSettings.MinFStop = 1.8f;
-	CameraLensSettings.MaxFStop = 22.0f;
-	CameraLensSettings.SqueezeFactor = 1.0f;
+	//FCameraLensSettings CameraLensSettings;
+	//CameraLensSettings.MinFocalLength = 50.0f;
+	//CameraLensSettings.MaxFocalLength = 50.0f;
+	//CameraLensSettings.MinFStop = 1.8f;
+	//CameraLensSettings.MaxFStop = 22.0f;
+	//CameraLensSettings.SqueezeFactor = 1.0f;
 
-	FCameraFocusSettings CameraFocusSettings;
-	CameraFocusSettings.FocusMethod = ECameraFocusMethod::Manual;
-	CameraFocusSettings.ManualFocusDistance = 80.0f;
+	//FCameraFocusSettings CameraFocusSettings;
+	//CameraFocusSettings.FocusMethod = ECameraFocusMethod::Manual;
+	//CameraFocusSettings.ManualFocusDistance = 80.0f;
 
-	CameraComponent->Filmback = FilmbackSettings;
-	CameraComponent->LensSettings = CameraLensSettings;
-	CameraComponent->FocusSettings = CameraFocusSettings;
+	//CameraComponent->Filmback = FilmbackSettings;
+	//CameraComponent->LensSettings = CameraLensSettings;
+	//CameraComponent->FocusSettings = CameraFocusSettings;
 
-	CameraComponent->bConstrainAspectRatio = false;
-	CameraComponent->CurrentAperture = 5.0f;
+	//CameraComponent->bConstrainAspectRatio = false;
+	//CameraComponent->CurrentAperture = 5.0f;
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +65,39 @@ void ADistanceAttackCameraController::BeginPlay()
 	Super::BeginPlay();
 	
 
+}
+
+// smoothly interpolates the camera to the desired location and rotation
+void ADistanceAttackCameraController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!IsValid(CameraComponent))
+		return;
+
+	const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(playerController))
+		return;
+
+	FTransform CameraTransform = CameraComponent->GetRootComponent()->GetRelativeTransform();
+	FTransform targetTransform;
+
+	targetTransform.SetLocation(FMath::VInterpTo(CameraTransform.GetLocation(), FVector::ZeroVector, DeltaTime, 7));
+	targetTransform.SetRotation(FMath::RInterpTo(CameraTransform.GetRotation().Rotator(), FRotator::ZeroRotator, DeltaTime, 7).Quaternion());
+
+
+	CameraComponent->SetActorRelativeTransform(targetTransform);
+
+	// check if the camera is close enough to the target location and rotation to then snap it to it
+
+	if (FVector::Distance(CameraTransform.GetLocation(), FVector::ZeroVector) < 1.0f &&
+		CameraTransform.GetRotation().Equals(FQuat::Identity, 0.01f))
+	{
+		CameraComponent->SetActorRelativeLocation(FVector::ZeroVector);
+		CameraComponent->SetActorRelativeRotation(FRotator::ZeroRotator);
+
+		CameraComponent = nullptr;	// release the reference so that the camera is not moved anymore
+	}
 }
 
 // Called to bind functionality to input
@@ -83,10 +116,13 @@ void ADistanceAttackCameraController::SetupPlayerInputComponent(UInputComponent*
 	PlayerInputComponent->BindAction("Interact_Cancel", IE_Pressed, this, &ADistanceAttackCameraController::CancelAttack);
 }
 
+// fires the distance attack
 void ADistanceAttackCameraController::Fire(FKey Key)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 }
+
+// cancels the distance attack and returns to the cursor
 void ADistanceAttackCameraController::CancelAttack(FKey Key)
 {
 	float blendTime = 0.55f;
@@ -94,9 +130,12 @@ void ADistanceAttackCameraController::CancelAttack(FKey Key)
 	if (const auto& camera = Cast<AGameplayCameraBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameplayCameraBase::StaticClass())))
 	{
 		const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		
+
 		playerController->Possess(Cast<APawn>(UGameplayStatics::GetActorOfClass(GetWorld(), ACursorBase::StaticClass())));
-		playerController->SetViewTargetWithBlend(camera, blendTime, EViewTargetBlendFunction::VTBlend_Cubic, 2.6);
+		playerController->SetViewTarget(camera);
+		
+		camera->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		camera->SetTickingEnabled(true);
 
 		TArray<UUserWidget*> foundWidgets;
 		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), foundWidgets, UDistanceAttackWidgetBase::StaticClass());
