@@ -51,27 +51,8 @@ void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement(TObjectPtr<
 	const auto& widget = CreateWidget<UAfterMoveInteractionBase>(GetWorld(), AfterMoveInteraction_ClassReferenceBlueprint);
 	if (widget)
 	{
-		const auto& pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-		if (!pawn)
-			return;
-
-		const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		if (!playerController)
-			return;
-
-		FVector worldLocation = UnitReference->GetActorLocation();
-		{
-			worldLocation += (pawn->GetActorRightVector() * 90.0f);
-			worldLocation += FVector(0, 0, 150.0f);
-		}
-
-		// adjust transformation of the widget
-		FVector2D RenderTranslation;
-		if (UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(playerController, worldLocation, RenderTranslation, false))
-		{
-			// adjust the position of the ui element based on the world location of the unit
-			widget->GetSizeBox_Container()->SetRenderTranslation(RenderTranslation);
-		}
+		const FVector2D WidgetPosition = widget->CalculateWidgetPositioning(UnitReference);
+		widget->GetSizeBox_Container()->SetRenderTranslation(WidgetPosition);
 		
 		widget->AddToViewport();
 	}
