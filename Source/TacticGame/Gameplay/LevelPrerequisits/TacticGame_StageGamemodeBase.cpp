@@ -10,13 +10,17 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "TacticGame/UserInput/CursorBase.h"
 #include "TacticGame/Gameplay/Units/UnitCharacterBase.h"
+#include "TacticGame/Gameplay/Vision/MinimapRendererBase.h"
 #include "TacticGame/UserInterface/InStage/PlayerScreenBase.h"
 #include "TacticGame/UserInterface/InStage/AfterMoveInteractionBase.h"
 
 
 ATacticGame_StageGamemodeBase::ATacticGame_StageGamemodeBase()
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	{
 		static ConstructorHelpers::FClassFinder<UPlayerScreenBase> playerScreen_tmp
 		(TEXT("/Game/UserInterface/InStage/WB_PlayerScreen"));
@@ -31,6 +35,14 @@ ATacticGame_StageGamemodeBase::ATacticGame_StageGamemodeBase()
 
 		if (aftermoveInteraction_tmp.Succeeded())
 			AfterMoveInteraction_ClassReferenceBlueprint = aftermoveInteraction_tmp.Class;
+	}
+
+	{
+		static ConstructorHelpers::FClassFinder<UUserWidget> minimap_tmp
+		(TEXT("/Game/UserInterface/InStage/Overlays/WB_Minimap"));
+
+		if (minimap_tmp.Succeeded())
+			MinimapWidget_ClassReferenceBlueprint = minimap_tmp.Class;
 	}
 }
 
@@ -56,4 +68,48 @@ void ATacticGame_StageGamemodeBase::ShowAfterMovementActionUIElement(TObjectPtr<
 	widget->GetSizeBox_Container()->SetRenderTranslation(WidgetPosition);
 
 	widget->AddToViewport();
+}
+
+// Tries to show the minimap on the playerscreen
+void ATacticGame_StageGamemodeBase::ShowMinimapOnPlayerScreen()
+{
+	if (!IsValid(PlayerScreen))
+		return;
+
+	// spawns the Minimap Recorder Actor which contains the SceneCapture2D component
+	SpawnMinimapRecorder();
+
+	MinimapWidgetReference = CreateWidget<UUserWidget>(GetWorld(), MinimapWidget_ClassReferenceBlueprint);
+	PlayerScreen->AttachMinimapToPlayerScreen(MinimapWidgetReference);
+}
+// Tries to hide the minimap on the playerscreen
+void ATacticGame_StageGamemodeBase::HideMinimapOnPlayerScreen()
+{
+	if (!IsValid(PlayerScreen))
+		return;
+
+	if (!IsValid(MinimapWidgetReference))
+		return;
+
+	PlayerScreen->RemoveMinimapFromPlayerScreen(MinimapWidgetReference);
+	
+	// destroys the Minimap Renderer Actor
+	if (IsValid(MinimapRendererReference))
+		MinimapRendererReference->Destroy();
+}
+
+// Spawns the Minimap Recorder Actor which contains the SceneCapture2D component
+void ATacticGame_StageGamemodeBase::SpawnMinimapRecorder()
+{
+	MinimapRendererReference = GetWorld()->SpawnActor<AMinimapRendererBase>(AMinimapRendererBase::StaticClass());
+	if (!IsValid(MinimapRendererReference))
+		return;
+
+	MinimapRendererReference->SetCursorReference(Cast<ACursorBase>(UGameplayStatics::GetActorOfClass(GetWorld(), ACursorBase::StaticClass())));
+	
+	FTransform initialTransform = MinimapRendererReference->CalculateMinimapCameraTransform();
+	initialTransform.SetRotation(MinimapRendererReference->DefaultMinimapRotation.Quaternion());
+
+	MinimapRendererReference->SetActorTransform(initialTransform);
+	MinimapRendererReference->EnableTracking();
 }
