@@ -50,6 +50,9 @@ void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Interact Cancel
 	PlayerInputComponent->BindAction("Interact_Cancel", IE_Pressed, this, &ACursorBase::Cancel);
 
+	// Minimap Toggle
+	PlayerInputComponent->BindAction("ToggleMinimapVisiblity", IE_Pressed, this, &ACursorBase::ToggleMinimap);
+
 	// Camera Zoom [Keyboard]
 	PlayerInputComponent->BindAxis("Zoom", this, &ACursorBase::ZoomInOut);
 
@@ -283,6 +286,9 @@ void ACursorBase::Tick(float DeltaTime)
 	// accelerates the cursor movement based on the acceleration curve when the player is moving the cursor
 	if ((GetCursorVelocity() > 10 || SizeInput != 0.0f) && !bHitBorder)
 	{
+		// removes the currently hovered unit
+		m_HoveredUnit = nullptr;
+
 		if (!m_DoOnce_SnappingToCharacter)
 		{
 			m_DoOnce_SnappingToCharacter = true;
@@ -354,6 +360,9 @@ void ACursorBase::Tick(float DeltaTime)
 					FName SelectedTag;
 					if (UTracingLibrary::HasTags(HitResult.GetActor(), { ALevelStateBase::GetTag_Characters_Allies(), ALevelStateBase::GetTag_Characters_Enemies() }, SelectedTag))
 					{
+						// if here the actor hit is a character on the field
+						m_HoveredUnit = Cast<AUnitCharacterBase>(HitResult.GetActor());
+
 						FVector TargetCharacterLocation = HitResult.GetActor()->GetActorLocation();
 						TargetCharacterLocation.Z = FinalLocation.Z;
 						
@@ -362,6 +371,10 @@ void ACursorBase::Tick(float DeltaTime)
 						successful = true; // do not trace again for the same data
 
 						CheckUnitOnField(HitResult, SelectedTag);
+					}
+					else
+					{
+						m_HoveredUnit = nullptr;
 					}
 				}
 
@@ -628,6 +641,23 @@ void ACursorBase::TiltRight(float Rate)
 {
 	const float TiltingMultiplier = m_isInspecting ? 0.25 : 1.0;
 	m_CameraTilting->SetRotationAxis(Yaw, (Rate * 3.0) * TiltingMultiplier);
+}
+
+// Shows / Hides the Minimap from the PlayerScreen
+void ACursorBase::ToggleMinimap(FKey Key)
+{
+	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+
+	if (m_MinimapActive)
+	{
+		m_MinimapActive = false;
+		gamemode->HideMinimapOnPlayerScreen();
+	}
+	else
+	{
+		m_MinimapActive = true;
+		gamemode->ShowMinimapOnPlayerScreen();
+	}
 }
 
 // tries to stay close to the ground (with offset) without interupting the XY Movement

@@ -25,6 +25,13 @@ public:
 
 	void ShowAfterMovementActionUIElement(TObjectPtr<class AUnitCharacterBase> UnitReference);
 
+	void ShowMinimapOnPlayerScreen();
+	void HideMinimapOnPlayerScreen();
+
+private:
+
+	void SpawnMinimapRecorder();
+
 private:
 
 	//		// Player Screen UI element
@@ -39,4 +46,18 @@ private:
 
 	UPROPERTY()
 	TSubclassOf<class UAfterMoveInteractionBase> AfterMoveInteraction_ClassReferenceBlueprint = nullptr;
+
+
+	// Minimap Widget Reference
+
+	UPROPERTY()
+	TSubclassOf<class UUserWidget> MinimapWidget_ClassReferenceBlueprint = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<class UUserWidget> MinimapWidgetReference = nullptr;
+
+	// Minimap Renderer Reference
+
+	UPROPERTY()
+	TObjectPtr<class AMinimapRendererBase> MinimapRendererReference = nullptr;
 };

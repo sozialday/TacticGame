@@ -82,6 +82,12 @@ public:
 		return m_SelectedUnit;
 	}
 
+	UFUNCTION(BlueprintPure)
+	class AUnitCharacterBase* GetHoveredUnit()
+	{
+		return m_HoveredUnit;
+	}
+
 private:
 
 	// confirm button
@@ -131,6 +137,10 @@ private:
 
 		DeselectCell(Key);
 	}
+
+	// Toggles the Minimap
+	void ToggleMinimap(FKey Key);
+	bool m_MinimapActive = false;	// boolean responsible for the minimap state
 
 	// for all the input actions
 	void UpdateInputMethod(FKey Key)
@@ -226,6 +236,9 @@ private:
 	UPROPERTY()
 	TObjectPtr<class AUnitCharacterBase> m_SelectedUnit = nullptr;
 	bool m_successfulSelection = false;
+
+	UPROPERTY()
+	TObjectPtr<class AUnitCharacterBase> m_HoveredUnit = nullptr;
 
 	// Inspect Unit
 

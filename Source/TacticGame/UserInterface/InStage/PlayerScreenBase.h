@@ -23,6 +23,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetVisibilityStatus(bool bVisible);
 
+	// Attaches the Minimap to the Player Screen
+	UFUNCTION(BlueprintImplementableEvent)
+	void AttachMinimapToPlayerScreen(class UUserWidget* MinimapWidgetReference);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void RemoveMinimapFromPlayerScreen(class UUserWidget* MinimapWidgetReference);
+
 	// Visibility Function - Animated Hiding/Showing
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
