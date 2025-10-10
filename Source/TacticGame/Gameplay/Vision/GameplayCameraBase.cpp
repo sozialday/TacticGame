@@ -90,7 +90,6 @@ void AGameplayCameraBase::Tick(float DeltaTime)
 
 		SetActorLocation(FMath::VInterpTo(m_CameraLocation,
 			CalculateNewActorLocation(m_Cursor, m_CameraOffset, m_CameraDistanceToCursor), DeltaTime, 6.5));
-
 	}
 
 	// CAMERA ROTATION //

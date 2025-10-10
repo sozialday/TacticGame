@@ -52,6 +52,23 @@ public:
 	// retrives the camera offset arrow
 	TObjectPtr<class UArrowComponent> GetCameraOffsetDirection() const { return m_CameraOffsetDirection_facing; }
 
+	UFUNCTION(BlueprintCallable)
+	void DisableMovement()
+	{
+		// m_MovementComponent->StopMovementImmediately();
+		AccelerationTime = 0.0f;
+		AccelerationValue = 0.0f;
+
+		m_canMove = false;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void EnableMovement()
+	{
+		m_canMove = true;
+	}
+
+
 	// DEVELOPMENT ONLY 
 	// REPLACE THE ARROW WITH AN ACTUAL MODELL THAT YOU CAN MANIPULATE IN CODE
 
@@ -110,6 +127,13 @@ private:
 
 		if (m_canCancel)
 		{
+			if (m_inFullscreenMinimap)
+			{
+				CloseMinimap_Fullscreen();
+				m_canCancel = false;
+				return;
+			}
+
 			// revert settings [starting from the inspection menu]
 
 			m_isInspecting = false;
@@ -141,6 +165,11 @@ private:
 	// Toggles the Minimap
 	void ToggleMinimap(FKey Key);
 	bool m_MinimapActive = false;	// boolean responsible for the minimap state
+
+	// Moves the Camera upwards to make the GameplayCameraBase function as a fullscreen minimap
+	void OpenMinimap_Fullscreen(FKey Key);
+	void CloseMinimap_Fullscreen();
+	bool m_inFullscreenMinimap = false;
 
 	// for all the input actions
 	void UpdateInputMethod(FKey Key)
@@ -220,6 +249,8 @@ private:
 	TObjectPtr<class URelativeCameraMovement> m_CameraTilting;
 
 private:
+
+	bool m_canMove = true;
 
 	bool m_canCancel = false;
 	bool m_isInspecting = false;

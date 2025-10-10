@@ -28,6 +28,14 @@ public:
 	void ShowMinimapOnPlayerScreen();
 	void HideMinimapOnPlayerScreen();
 
+	// Minimap - Fullscreen Functionality
+
+	void RequestMinimap_Fullscreen();
+	
+	void CreateAndFillInMinimapCameraManager(TObjectPtr<class AActor> CursorReference, TObjectPtr<class AGameplayCameraBase> CameraReference);
+	void DestroyMinimapCameraManager();
+
+
 private:
 
 	void SpawnMinimapRecorder();
@@ -60,4 +68,13 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<class AMinimapRendererBase> MinimapRendererReference = nullptr;
+
+	// Minimap Camera Transform Point Reference
+	UPROPERTY()
+	TObjectPtr<class AMinimapCameraTransformPointBase> MinimapCameraTransformPointReference = nullptr;
+
+
+	// Camera Reference
+	UPROPERTY()
+	TObjectPtr<class AGameplayCameraBase> MinimapCameraReference = nullptr;
 };

@@ -52,6 +52,8 @@ void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	// Minimap Toggle
 	PlayerInputComponent->BindAction("ToggleMinimapVisiblity", IE_Pressed, this, &ACursorBase::ToggleMinimap);
+	// Opens the Minimap in Fullscreen
+	PlayerInputComponent->BindAction("OpenMinimap_Fullscreen", IE_Pressed, this, &ACursorBase::OpenMinimap_Fullscreen);
 
 	// Camera Zoom [Keyboard]
 	PlayerInputComponent->BindAxis("Zoom", this, &ACursorBase::ZoomInOut);
@@ -530,6 +532,9 @@ void ACursorBase::Inspect_Unit(FKey Key)
 {
 	UpdateInputMethod(Key);
 
+	if (m_inFullscreenMinimap)
+		return;
+
 	if (m_isInspecting)
 		return;
 
@@ -601,6 +606,9 @@ void ACursorBase::Inspect_Unit(FKey Key)
 // Movement Forward
 void ACursorBase::MoveForward(float value)
 {
+	if (!m_canMove)
+		return;
+
 	if (m_isInspecting)
 		return;
 
@@ -617,6 +625,9 @@ void ACursorBase::MoveForward(float value)
 // Movement Right
 void ACursorBase::MoveRight(float value)
 {
+	if (!m_canMove)
+		return;
+
 	if (m_isInspecting)
 		return;
 
@@ -646,6 +657,8 @@ void ACursorBase::TiltRight(float Rate)
 // Shows / Hides the Minimap from the PlayerScreen
 void ACursorBase::ToggleMinimap(FKey Key)
 {
+	UpdateInputMethod(Key);
+
 	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
 
 	if (m_MinimapActive)
@@ -658,6 +671,60 @@ void ACursorBase::ToggleMinimap(FKey Key)
 		m_MinimapActive = true;
 		gamemode->ShowMinimapOnPlayerScreen();
 	}
+}
+
+// Opens the Minimap in Fullscreen
+// uses the GameplayCameraBase to do so
+void ACursorBase::OpenMinimap_Fullscreen(FKey Key)
+{
+	UpdateInputMethod(Key);
+
+	// only if the user is not inspecting a unit
+	if (m_isInspecting)
+		return;
+
+	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!IsValid(gamemode))
+		return;
+
+	// disable movement of the cursor
+	this->DisableMovement();
+
+	// request the gamemode to open the minimap overlay on the playerscreen
+	gamemode->RequestMinimap_Fullscreen();
+
+	// move the camera upwards to make it look like a fullscreen minimap
+	{
+		TObjectPtr<class AGameplayCameraBase> camera = nullptr;
+
+		if (!IsValid(m_CachedCamera))
+			camera = Cast<AGameplayCameraBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AGameplayCameraBase::StaticClass()));
+		else
+			camera = m_CachedCamera;
+
+		// move the camera upwards to make it look like a fullscreen minimap
+		gamemode->CreateAndFillInMinimapCameraManager(this, camera);
+	}
+	
+	m_inFullscreenMinimap = true;
+	m_canCancel = true;
+}
+
+// closes the fullscreen minimap
+void ACursorBase::CloseMinimap_Fullscreen()
+{
+	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (!IsValid(gamemode))
+		return;
+	
+	// disable movement of the cursor
+	this->EnableMovement();
+
+	// request the gamemode to close the minimap overlay on the playerscreen
+	gamemode->DestroyMinimapCameraManager();
+
+	m_inFullscreenMinimap = false;
+	m_canCancel = false;
 }
 
 // tries to stay close to the ground (with offset) without interupting the XY Movement
