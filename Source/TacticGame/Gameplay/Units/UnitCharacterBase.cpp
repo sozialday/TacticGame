@@ -142,6 +142,19 @@ void AUnitCharacterBase::AddMovementTrackPoint(FVector Location)
 	}
 }
 
+// Called when the unit receives any damage
+float AUnitCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (Health->DecreaseHealth(FMath::TruncToInt(DamageAmount)))
+	{
+		// dead
+
+	}
+
+	return 0.0f;
+}
 
 void AUnitCharacterBase::PickUnit()
 {

@@ -108,28 +108,28 @@ bool ATurnBasedGameManager::VerifyIfUnitCanTakeTurn(TObjectPtr<class AUnitCharac
 
 	//UE_LOG(LogTemp, Warning, TEXT("Verifying if unit %s can take its turn."), IsValid(unit) ? *unit->GetName() : TEXT("Invalid Unit"));
 
-	//if (!IsValid(unit))
-	//	return false;
+	if (!IsValid(unit))
+		return false;
 
-	//UE_LOG(LogTemp, Warning, TEXT("Unit %s is valid."), *unit->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("Unit %s is valid."), *unit->GetName());
 
-	//if (isEnemy)	// enemy
-	//{
-	//	// if you had your turn already this round you cannot take another one
-	//	if (ArrayContains(m_EnemyUnitsThatHadTurn, unit))
-	//		return false;
+	if (isEnemy)	// enemy
+	{
+		// if you had your turn already this round you cannot take another one
+		if (ArrayContains(m_EnemyUnitsThatHadTurn, unit))
+			return false;
 
-	//	UE_LOG(LogTemp, Warning, TEXT("Enemy Unit %s is allowed to take its turn."), *unit->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Unit %s is allowed to take its turn."), *unit->GetName());
 
-	//}
-	//else			// ally
-	//{
-	//	// if you had your turn already this round you cannot take another one
-	//	if (ArrayContains(m_AllyUnitsThatHadTurn, unit))
-	//		return false;
+	}
+	else			// ally
+	{
+		// if you had your turn already this round you cannot take another one
+		if (ArrayContains(m_AllyUnitsThatHadTurn, unit))
+			return false;
 
-	//	UE_LOG(LogTemp, Warning, TEXT("Ally Unit %s is allowed to take its turn."), *unit->GetName());
-	//}
+		UE_LOG(LogTemp, Warning, TEXT("Ally Unit %s is allowed to take its turn."), *unit->GetName());
+	}
 
 	return true;
 }
