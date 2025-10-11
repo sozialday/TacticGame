@@ -37,13 +37,16 @@ void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	// Basic Movement [Keyboard]
-	PlayerInputComponent->BindAxis("Movement_Fwd_Camera", this, &ACursorBase::MoveForward);
-	PlayerInputComponent->BindAxis("Movement_Right_Camera", this, &ACursorBase::MoveRight);
-	
-	// Basic Camera Tilting [Keyboard]
-	PlayerInputComponent->BindAxis("Tilt CameraUp", this, &ACursorBase::TiltUp);
-	PlayerInputComponent->BindAxis("Tilt CameraRight", this, &ACursorBase::TiltRight);
+	if (IsValid(this) && IsValid(PlayerInputComponent))
+	{
+		// Basic Movement [Keyboard]
+		PlayerInputComponent->BindAxis("Movement_Fwd_Camera", this, &ACursorBase::MoveForward);
+		PlayerInputComponent->BindAxis("Movement_Right_Camera", this, &ACursorBase::MoveRight);
+
+		// Basic Camera Tilting [Keyboard]
+		PlayerInputComponent->BindAxis("Tilt CameraUp", this, &ACursorBase::TiltUp);
+		PlayerInputComponent->BindAxis("Tilt CameraRight", this, &ACursorBase::TiltRight);
+	}
 	
 	// Inspect Unit
 	PlayerInputComponent->BindAction("Inspect Unit", IE_Pressed, this, &ACursorBase::Inspect_Unit);
@@ -84,7 +87,7 @@ void ACursorBase::Cancel(FKey Key)
 	UpdateInputMethod(Key);
 
 	// if successful then do not do anything else
-	if (m_confirmcancelHandler && m_confirmcancelHandler->CancelAction())
+	if (IsValid(m_confirmcancelHandler) && m_confirmcancelHandler->CancelAction())
 		return;
 
 	DeselectCell(Key);
@@ -102,10 +105,10 @@ bool ACursorBase::HasConfirmCancelHandler() const
 	return IsValid(m_confirmcancelHandler);
 }
 // checks if the handler has the class you are looking for
-bool ACursorBase::IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass) const
+bool ACursorBase::IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass)
 {
 	// if there is no handler, return true so that the player can open the minimap or whatever
-	return IsValid(m_confirmcancelHandler) && IsValid(HandlerClass) && m_confirmcancelHandler->IsA(HandlerClass);
+	return IsValid(this) && IsValid(m_confirmcancelHandler) && IsValid(HandlerClass) && m_confirmcancelHandler->Is(HandlerClass);
 }
 
 

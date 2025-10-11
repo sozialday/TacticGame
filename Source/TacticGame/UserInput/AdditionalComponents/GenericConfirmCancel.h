@@ -13,7 +13,7 @@ UCLASS()
 class TACTICGAME_API UGenericConfirmCancel : public UObject
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	UGenericConfirmCancel() = default;
@@ -36,7 +36,16 @@ public:
 		return true;
 	}
 
+	bool Is(TSubclassOf<class UGenericConfirmCancel> ClassReferenceToCheck)
+	{
+		return RID.Equals(ClassReferenceToCheck.GetDefaultObject()->RID);
+	}
+
 protected:
+
+	// Reference Identification
+	UPROPERTY()
+	FString RID;
 
 	UPROPERTY()
 	TObjectPtr<class ACursorBase> m_CursorRef = nullptr;
@@ -50,7 +59,10 @@ class TACTICGAME_API UInspectionMenu : public UGenericConfirmCancel
 
 public:
 
-	UInspectionMenu() = default;
+	UInspectionMenu()
+	{
+		RID = "INSPECTION";
+	}
 	void Initialize(TObjectPtr<class ACursorBase> CursorRef, TObjectPtr<class AGameplayCameraBase> Camera,
 		TObjectPtr<class UInspectionDetails_Window> InspectionDetails, TObjectPtr<class AInspectionWindowBG_Renderer> BG_Renderer)
 	{
@@ -84,7 +96,10 @@ class TACTICGAME_API UFullscreenMinimapMenu : public UGenericConfirmCancel
 
 public:
 
-	UFullscreenMinimapMenu() = default;
+	UFullscreenMinimapMenu()
+	{
+		RID = "FULLSCREENMINIMAP";
+	}
 	void Initialize(TObjectPtr<class ACursorBase> CursorRef)
 	{
 		m_CursorRef = CursorRef;

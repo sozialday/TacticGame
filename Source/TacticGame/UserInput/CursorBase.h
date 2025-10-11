@@ -42,6 +42,7 @@ private:
 	bool m_DoOnce_SnappingToCharacter = true;
 
 	// confirm / cancel handling
+	UPROPERTY()
 	TObjectPtr<class UGenericConfirmCancel> m_confirmcancelHandler = nullptr;
 
 public:
@@ -51,7 +52,7 @@ public:
 	// checks if the handler is active
 	bool HasConfirmCancelHandler() const;
 	// checks if the handler has the class you are looking for
-	bool IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass) const;
+	bool IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass);
 
 	// Sets default values for this pawn's properties
 	ACursorBase();
