@@ -41,7 +41,6 @@ private:
 private:
 
 	float m_cameraFocalDistance;
-
 	bool m_enableCameraFollowing = false;
 
 	UPROPERTY()

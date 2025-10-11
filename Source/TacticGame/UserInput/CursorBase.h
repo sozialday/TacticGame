@@ -41,7 +41,17 @@ private:
 	FVector m_currentVelocity = FVector::ZeroVector;
 	bool m_DoOnce_SnappingToCharacter = true;
 
+	// confirm / cancel handling
+	TObjectPtr<class UGenericConfirmCancel> m_confirmcancelHandler = nullptr;
+
 public:
+
+	// set the Confirm / Cancel Handler
+	void SetConfirmCancelHandler(TObjectPtr<class UGenericConfirmCancel> NewConfirmCancelHandler);
+	// checks if the handler is active
+	bool HasConfirmCancelHandler() const;
+	// checks if the handler has the class you are looking for
+	bool IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass) const;
 
 	// Sets default values for this pawn's properties
 	ACursorBase();
@@ -108,59 +118,9 @@ public:
 private:
 
 	// confirm button
-	void Confirm(FKey Key)
-	{
-		UpdateInputMethod(Key);
-
-		if (m_canCancel)
-		{
-			
-			return;
-		}
-
-		SelectCell(Key);
-	}
+	void Confirm(FKey Key);
 	// cancel button
-	void Cancel(FKey Key)
-	{
-		UpdateInputMethod(Key);
-
-		if (m_canCancel)
-		{
-			if (m_inFullscreenMinimap)
-			{
-				CloseMinimap_Fullscreen();
-				m_canCancel = false;
-				return;
-			}
-
-			// revert settings [starting from the inspection menu]
-
-			m_isInspecting = false;
-			m_canCancel = false;
-			m_CachedCamera->SetEnableInspectionMovement(false);
-			if (m_GamemodeReference)
-			{
-				if (const auto& playerscreen = m_GamemodeReference->GetPlayerScreen())
-				{
-					playerscreen->ShowPlayerScreen();
-					// playerscreen->SetVisibilityStatus(true);
-				}
-			}
-			if (m_InspectionUI_Overlay)
-			{
-				// can be replaced with a blueprint function to smoothly remove it from the display
-				m_InspectionUI_Overlay->RemoveFromParent();
-			}
-			if (m_InspectionRenderCapture)
-			{
-				m_InspectionRenderCapture->Destroy();
-			}
-			return;
-		}
-
-		DeselectCell(Key);
-	}
+	void Cancel(FKey Key);
 
 	// Toggles the Minimap
 	void ToggleMinimap(FKey Key);
@@ -168,7 +128,7 @@ private:
 
 	// Moves the Camera upwards to make the GameplayCameraBase function as a fullscreen minimap
 	void OpenMinimap_Fullscreen(FKey Key);
-	void CloseMinimap_Fullscreen();
+	// void CloseMinimap_Fullscreen(); -> handled by the FullscreenMinimapMenu
 	bool m_inFullscreenMinimap = false;
 
 	// for all the input actions
@@ -251,9 +211,6 @@ private:
 private:
 
 	bool m_canMove = true;
-
-	bool m_canCancel = false;
-	bool m_isInspecting = false;
 
 	// will be false if the cursor moved one cell
 	bool m_Once__CellMovedOnce = true;

@@ -2,9 +2,11 @@
 
 
 #include "MinimapCameraTransformPointBase.h"
-#include "TacticGame/Gameplay/Vision/GameplayCameraBase.h"
-#include "E:/UE5_Default/UE_5.6/Engine/Source/Runtime/CinematicCamera/Public/CineCameraComponent.h"
 
+#include "TacticGame/Gameplay/Vision/GameplayCameraBase.h"
+#include "TacticGame/Gameplay/LevelPrerequisits/LevelStateBase.h"
+
+#include "E:/UE5_Default/UE_5.6/Engine/Source/Runtime/CinematicCamera/Public/CineCameraComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
@@ -55,7 +57,7 @@ void AMinimapCameraTransformPointBase::TraceToGroundForFocalDistance()
 
 	if (UKismetSystemLibrary::LineTraceSingleForObjects(GetWorld(), GetActorLocation() + FVector(0, 0, 5000),
 		GetActorLocation() - FVector(0, 0, 5000), { EObjectTypeQuery::ObjectTypeQuery1, EObjectTypeQuery::ObjectTypeQuery7 }, 
-		false, {}, EDrawDebugTrace::ForDuration, hit, true))
+		false, {}, ALevelStateBase::GetTraceVisibility(), hit, true))
 	{
 		m_cameraFocalDistance = hit.Distance;
 	}

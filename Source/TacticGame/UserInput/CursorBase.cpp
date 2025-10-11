@@ -29,6 +29,9 @@
 #include "TacticGame/Functionality/TracingLibrary/TracingLibrary.h"
 #include "TacticGame/UserInput/AdditionalComponents/RelativeCameraMovement.h"
 
+// for better confirm and cancel handling
+#include "TacticGame/UserInput/AdditionalComponents/GenericConfirmCancel.h"
+
 // Player Input Bindings [Gameplay Movement alone]
 void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -61,6 +64,50 @@ void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Zoom Reset
 	PlayerInputComponent->BindAction("ResetCameraZoom", IE_Pressed, this, &ACursorBase::TryResetZoomLevel);
 }
+
+// Confirm Action [Select / Confirm Movement etc.]
+void ACursorBase::Confirm(FKey Key)
+{
+	UpdateInputMethod(Key);
+
+	if (HasConfirmCancelHandler())
+	{
+
+		return;
+	}
+
+	SelectCell(Key);
+}
+// Cancel Action [Cancel Movement / Close Menus etc.]
+void ACursorBase::Cancel(FKey Key)
+{
+	UpdateInputMethod(Key);
+
+	// if successful then do not do anything else
+	if (m_confirmcancelHandler && m_confirmcancelHandler->CancelAction())
+		return;
+
+	DeselectCell(Key);
+}
+
+
+// set the Confirm / Cancel Handler
+void ACursorBase::SetConfirmCancelHandler(TObjectPtr<class UGenericConfirmCancel> NewConfirmCancelHandler)
+{
+	m_confirmcancelHandler = NewConfirmCancelHandler;
+}
+// checks if the handler is active
+bool ACursorBase::HasConfirmCancelHandler() const
+{
+	return IsValid(m_confirmcancelHandler);
+}
+// checks if the handler has the class you are looking for
+bool ACursorBase::IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass) const
+{
+	// if there is no handler, return true so that the player can open the minimap or whatever
+	return IsValid(m_confirmcancelHandler) && IsValid(HandlerClass) && m_confirmcancelHandler->IsA(HandlerClass);
+}
+
 
 // will manually set the value so that the camera can follow the units movement
 void ACursorBase::SetCameraCustomMovement_UnitMovement(bool NewcameraCustomMovement_UnitMovement)
@@ -532,10 +579,7 @@ void ACursorBase::Inspect_Unit(FKey Key)
 {
 	UpdateInputMethod(Key);
 
-	if (m_inFullscreenMinimap)
-		return;
-
-	if (m_isInspecting)
+	if (HasConfirmCancelHandler())
 		return;
 
 	FName HitTag;
@@ -546,12 +590,10 @@ void ACursorBase::Inspect_Unit(FKey Key)
 	// if here the unit selected is a UnitCharacterBase at least
 
 	const auto& Unit = Cast<AUnitCharacterBase>(Hit.GetActor());
-	if (!Unit)
+	if (!IsValid(Unit))
 		return;
 
 	ResetZoomLevel();
-	m_canCancel = true;
-	m_isInspecting = true;
 
 	if (!m_CachedCamera)
 		return;
@@ -601,6 +643,17 @@ void ACursorBase::Inspect_Unit(FKey Key)
 		m_InspectionUI_Overlay->PassUnitCharacterDetails(Unit->GetUnitConfigurationData());
 		m_InspectionUI_Overlay->AddToViewport();
 	}
+
+	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//
+
+	{
+		// should change after everything is setup
+		// create and pass the confirm/cancel handler component
+		TObjectPtr<UInspectionMenu> newHandler = NewObject<UInspectionMenu>(this);
+		newHandler->Initialize(this, m_CachedCamera, m_InspectionUI_Overlay, m_InspectionRenderCapture);
+
+		SetConfirmCancelHandler(newHandler);
+	}
 }
 
 // Movement Forward
@@ -609,8 +662,12 @@ void ACursorBase::MoveForward(float value)
 	if (!m_canMove)
 		return;
 
-	if (m_isInspecting)
-		return;
+	if (HasConfirmCancelHandler())
+	{
+		// do not allow movement when inspecting a unit
+		if (IsHandlerSameClass(UInspectionMenu::StaticClass()))
+			return;
+	}
 
 	InputValues[0] = value;
 
@@ -628,8 +685,12 @@ void ACursorBase::MoveRight(float value)
 	if (!m_canMove)
 		return;
 
-	if (m_isInspecting)
-		return;
+	if (HasConfirmCancelHandler())
+	{
+		// do not allow movement when inspecting a unit
+		if (IsHandlerSameClass(UInspectionMenu::StaticClass()))
+			return;
+	}
 
 	InputValues[1] = value;
 
@@ -645,12 +706,24 @@ void ACursorBase::MoveRight(float value)
 // slight camera tilting [for more personality : totally optional does not need to be used in gameplay]
 void ACursorBase::TiltUp(float Rate)
 {
-	const float TiltingMultiplier = m_isInspecting ? 0.25 : 1.0;
+	bool CanTiltIntensive = false;
+	if (HasConfirmCancelHandler())
+	{
+		CanTiltIntensive = IsHandlerSameClass(UInspectionMenu::StaticClass());
+	}
+
+	const float TiltingMultiplier = CanTiltIntensive ? 0.25 : 1.0;
 	m_CameraTilting->SetRotationAxis(Pitch, (Rate * 3.0) * TiltingMultiplier);
 }
 void ACursorBase::TiltRight(float Rate)
 {
-	const float TiltingMultiplier = m_isInspecting ? 0.25 : 1.0;
+	bool CanTiltIntensive = false;
+	if (HasConfirmCancelHandler())
+	{
+		CanTiltIntensive = IsHandlerSameClass(UInspectionMenu::StaticClass());
+	}
+
+	const float TiltingMultiplier = CanTiltIntensive ? 0.25 : 1.0;
 	m_CameraTilting->SetRotationAxis(Yaw, (Rate * 3.0) * TiltingMultiplier);
 }
 
@@ -679,8 +752,7 @@ void ACursorBase::OpenMinimap_Fullscreen(FKey Key)
 {
 	UpdateInputMethod(Key);
 
-	// only if the user is not inspecting a unit
-	if (m_isInspecting)
+	if (HasConfirmCancelHandler())
 		return;
 
 	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -706,25 +778,16 @@ void ACursorBase::OpenMinimap_Fullscreen(FKey Key)
 		gamemode->CreateAndFillInMinimapCameraManager(this, camera);
 	}
 	
-	m_inFullscreenMinimap = true;
-	m_canCancel = true;
-}
+	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//	//
 
-// closes the fullscreen minimap
-void ACursorBase::CloseMinimap_Fullscreen()
-{
-	const auto& gamemode = Cast<ATacticGame_StageGamemodeBase>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (!IsValid(gamemode))
-		return;
-	
-	// disable movement of the cursor
-	this->EnableMovement();
+	{
+		// should change after everything is setup
+		// create and pass the confirm/cancel handler component
+		TObjectPtr<class UFullscreenMinimapMenu> newHandler = NewObject<UFullscreenMinimapMenu>(this);
+		newHandler->Initialize(this);
 
-	// request the gamemode to close the minimap overlay on the playerscreen
-	gamemode->DestroyMinimapCameraManager();
-
-	m_inFullscreenMinimap = false;
-	m_canCancel = false;
+		SetConfirmCancelHandler(newHandler);
+	}
 }
 
 // tries to stay close to the ground (with offset) without interupting the XY Movement
@@ -812,8 +875,11 @@ void ACursorBase::CheckUnitOnField(FHitResult HitResult, FName TagSelected)
 // Zoom In / Out
 void ACursorBase::ZoomInOut(float value)
 {
-	if (m_isInspecting)
-		return;
+	if (HasConfirmCancelHandler())
+	{
+		if (IsHandlerSameClass(UInspectionMenu::StaticClass()))
+			return;
+	}
 
 	if (value != 0.0f && m_CachedCamera)
 	{
@@ -853,8 +919,12 @@ void ACursorBase::AdjustZoomingLevel(float CurrentZoomLevel)
 // resets the zoom level back to its default value [smoothly]
 void ACursorBase::ResetZoomLevel()
 {
-	if (m_isInspecting)
-		return;
+	if (HasConfirmCancelHandler())
+	{
+		if (IsHandlerSameClass(UInspectionMenu::StaticClass()))
+			return;
+	}
+	
 
 	m_ZoomLevel = 0.0f;
 	AdjustZoomingLevel(0.0f);

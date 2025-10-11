@@ -17,7 +17,7 @@ AInspectionWindowBG_Renderer::AInspectionWindowBG_Renderer()
 	
 	{
 		static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RenderTexture
-		(TEXT("/Game/Miscellaneous/FX/Textures/RenderTextures/UnitRender_DetailedInspection.UnitRender_DetailedInspection"));
+		(TEXT("/Game/Miscellaneous/FX/Textures/RenderTextures/RT_UnitRender_DetailedInspection.RT_UnitRender_DetailedInspection"));
 
 		if (RenderTexture.Succeeded())
 			GetCaptureComponent2D()->TextureTarget = RenderTexture.Object;
