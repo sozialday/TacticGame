@@ -41,6 +41,17 @@ public:
 		return RID.Equals(ClassReferenceToCheck.GetDefaultObject()->RID);
 	}
 
+	UFUNCTION(BlueprintCallable)
+	void SavePreviousMapping(class UGenericConfirmCancel* NowPreviousMapping)
+	{
+		m_previousMapping = NowPreviousMapping;
+	}
+	UFUNCTION(BlueprintPure)
+	class UGenericConfirmCancel* GetPreviousMapping() const
+	{
+		return m_previousMapping;
+	}
+
 protected:
 
 	// Reference Identification
@@ -49,6 +60,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<class ACursorBase> m_CursorRef = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<class UGenericConfirmCancel> m_previousMapping = nullptr;
 };
 
 
@@ -108,4 +122,31 @@ public:
 private:
 
 	virtual bool CancelAction() override;
+};
+
+UCLASS(Blueprintable)
+class TACTICGAME_API UPerkFullscreen_List : public UGenericConfirmCancel
+{
+	GENERATED_BODY()
+
+public:
+
+	UPerkFullscreen_List()
+	{
+		RID = "PerFullscreenList";
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void Initialize(class ACursorBase* CursorRef, class UPerkFullscreenListBase* PerkFullscreenListWidgetReference)
+	{
+		m_CursorRef = CursorRef;
+		m_perkFullscreenWidget = PerkFullscreenListWidgetReference;
+	}
+
+private:
+
+	virtual bool CancelAction() override;
+
+	UPROPERTY()
+	TObjectPtr<class UPerkFullscreenListBase> m_perkFullscreenWidget;
 };

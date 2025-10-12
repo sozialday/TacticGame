@@ -42,4 +42,7 @@ Desktop.ini
 # Ignore Content folder (große Dateien)
 Content/__ExternalActors__
 Content/__ExternalObjects__
+
 Content/Prototyping
+
+Content/VictaneCard

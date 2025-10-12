@@ -48,11 +48,19 @@ private:
 public:
 
 	// set the Confirm / Cancel Handler
-	void SetConfirmCancelHandler(TObjectPtr<class UGenericConfirmCancel> NewConfirmCancelHandler);
+	UFUNCTION(BlueprintCallable)
+	void SetConfirmCancelHandler(class UGenericConfirmCancel* NewConfirmCancelHandler);
 	// checks if the handler is active
 	bool HasConfirmCancelHandler() const;
 	// checks if the handler has the class you are looking for
 	bool IsHandlerSameClass(TSubclassOf<class UGenericConfirmCancel> HandlerClass);
+	// get the current confirm / cancel Handler [Mapping]
+	UFUNCTION(BlueprintPure)
+	class UGenericConfirmCancel* GetCurrentConfirmCancelHandler() const
+	{
+		return m_confirmcancelHandler;
+	}
+
 
 	// Sets default values for this pawn's properties
 	ACursorBase();

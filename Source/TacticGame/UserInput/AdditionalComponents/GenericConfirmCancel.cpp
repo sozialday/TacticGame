@@ -3,6 +3,7 @@
 
 #include "GenericConfirmCancel.h"
 #include "Kismet/GameplayStatics.h"
+#include "TacticGame/UserInterface/InStage/Perks/PerkFullscreenListBase.h"
 #include "TacticGame/Gameplay/LevelPrerequisits/TacticGame_StageGamemodeBase.h"
 
 // closes the fullscreen minimap
@@ -44,4 +45,40 @@ bool UInspectionMenu::CancelAction()
 	}
 
 	return Super::CancelAction();
+}
+
+// closes the perk fullscreen window
+bool UPerkFullscreen_List::CancelAction()
+{
+	if (!IsValid(m_perkFullscreenWidget))
+		return false;
+
+	m_perkFullscreenWidget->RemoveFromParent();
+
+	// redo the confirm/cancel mapping
+	if (!IsValid(m_CursorRef))
+		return false;
+
+
+	{
+		TObjectPtr<class UGenericConfirmCancel> newHandler = nullptr;
+
+		// should change after everything is setup
+		// create and pass the confirm/cancel handler component
+		const auto& previousMapping = GetPreviousMapping();
+		if (IsValid(previousMapping))
+		{
+			newHandler = previousMapping;
+		}
+		else
+		{
+			// get the references from the world to reconstruct the previous mapping [..]
+
+		}
+
+		m_CursorRef->SetConfirmCancelHandler(newHandler);
+	}
+
+
+	return true;
 }

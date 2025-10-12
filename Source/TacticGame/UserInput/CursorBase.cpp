@@ -95,7 +95,7 @@ void ACursorBase::Cancel(FKey Key)
 
 
 // set the Confirm / Cancel Handler
-void ACursorBase::SetConfirmCancelHandler(TObjectPtr<class UGenericConfirmCancel> NewConfirmCancelHandler)
+void ACursorBase::SetConfirmCancelHandler(class UGenericConfirmCancel* NewConfirmCancelHandler)
 {
 	m_confirmcancelHandler = NewConfirmCancelHandler;
 }
