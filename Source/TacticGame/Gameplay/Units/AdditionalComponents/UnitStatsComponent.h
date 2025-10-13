@@ -78,7 +78,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-	void AddXP(float XPValue)
+	void AddXP(int XPValue)
 	{
 		LevelProgression.AddXP(XPValue);
 	}

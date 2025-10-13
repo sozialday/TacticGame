@@ -35,10 +35,10 @@ private:
 		return A + (B - A) * powf(Alpha, 2);
 	}
 
-	float CalculateMaxLevelProgress(int CurrentLevel)
+	int CalculateMaxLevelProgress(int CurrentLevel)
 	{
 		auto Alpha = FMath::GetMappedRangeValueClamped(FVector2D(1.0, 100.0), FVector2D(0.0, 1.0), (double)CurrentLevel);
-		return xerp(100.0f, 1000000.0f, Alpha);
+		return FMath::TruncToInt(xerp(100.0f, 1000000.0f, Alpha));
 	}
 
 public:
@@ -48,11 +48,11 @@ public:
 		if (Level == ALevelStateBase::GetMaxLevel())
 			return;
 
-		OverflowingXP = 0.0;
+		OverflowingXP = 0;
 
 		do
 		{
-			float ValueAdded;
+			int ValueAdded;
 			if (OverflowingXP != 0.0)
 			{
 				ValueAdded = OverflowingXP;
@@ -69,21 +69,19 @@ public:
 			{
 				OverflowingXP = LevelProgress - MaxLevelProgress;
 
-				UE_LOG(LogTemp, Error, TEXT("Overflowing XP : %f"), OverflowingXP);
-
 				Level++;
-				LevelProgress = 0.0;
+				LevelProgress = 0;
 				MaxLevelProgress = CalculateMaxLevelProgress(Level);
 			}
 
-		} while (OverflowingXP != 0.0 && Level < ALevelStateBase::GetMaxLevel());
+		} while (OverflowingXP != 0 && Level < ALevelStateBase::GetMaxLevel());
 	}
 
 	FLevelProgression() 
 	{
-		OverflowingXP = 0.0f;
-		Level = 1.0f;
-		MaxLevelProgress = 100.0f;
+		OverflowingXP = 0;
+		Level = 1;
+		MaxLevelProgress = 100;
 	}
 	FLevelProgression(int CurrentLevel, float CurrentProgress)
 	{
@@ -95,14 +93,14 @@ public:
 	int Level = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float LevelProgress = 0.0f;
+	int LevelProgress = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MaxLevelProgress = 100.0f;
+	int MaxLevelProgress = 100;
 
 private:
 
-	float OverflowingXP = 0.0f;
+	int OverflowingXP = 0.0f;
 };
 
 class TACTICGAME_API GlobalStructureContainer
