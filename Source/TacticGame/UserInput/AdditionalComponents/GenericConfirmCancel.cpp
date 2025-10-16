@@ -2,7 +2,10 @@
 
 
 #include "GenericConfirmCancel.h"
+
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+
 #include "TacticGame/UserInterface/InStage/Perks/PerkFullscreenListBase.h"
 #include "TacticGame/Gameplay/LevelPrerequisits/TacticGame_StageGamemodeBase.h"
 
@@ -59,7 +62,6 @@ bool UPerkFullscreen_List::CancelAction()
 	if (!IsValid(m_CursorRef))
 		return false;
 
-
 	{
 		TObjectPtr<class UGenericConfirmCancel> newHandler = nullptr;
 
@@ -73,12 +75,20 @@ bool UPerkFullscreen_List::CancelAction()
 		else
 		{
 			// get the references from the world to reconstruct the previous mapping [..]
-
+			// not necessary
 		}
 
 		m_CursorRef->SetConfirmCancelHandler(newHandler);
-	}
 
+		const auto& oldUI_alreadyDisplayed = Cast<UInspectionMenu>(previousMapping)->GetUIReference();
+		if (IsValid(oldUI_alreadyDisplayed))
+		{
+			const auto& playerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+			// input mode to the old ui
+			UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(playerController, oldUI_alreadyDisplayed);
+		}
+	}
 
 	return true;
 }

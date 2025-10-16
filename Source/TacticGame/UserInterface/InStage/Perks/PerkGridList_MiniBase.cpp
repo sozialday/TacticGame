@@ -30,4 +30,7 @@ void UPerkGridList_MiniBase::RedirectToPerListWindow(TSubclassOf<class UUserWidg
 	cursor->SetConfirmCancelHandler(perkFullscreenWindow);
 
 	widget->AddToViewport();
+
+	// input mode to the new ui
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(UGameplayStatics::GetPlayerController(GetWorld(), 0), widget);
 }

@@ -59,7 +59,7 @@ void ACursorBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Minimap Toggle
 	PlayerInputComponent->BindAction("ToggleMinimapVisiblity", IE_Pressed, this, &ACursorBase::ToggleMinimap);
 	// Opens the Minimap in Fullscreen
-	PlayerInputComponent->BindAction("OpenMinimap_Fullscreen", IE_Pressed, this, &ACursorBase::OpenMinimap_Fullscreen);
+	//PlayerInputComponent->BindAction("OpenMinimap_Fullscreen", IE_Pressed, this, &ACursorBase::OpenMinimap_Fullscreen);
 
 	// Camera Zoom [Keyboard]
 	PlayerInputComponent->BindAxis("Zoom", this, &ACursorBase::ZoomInOut);

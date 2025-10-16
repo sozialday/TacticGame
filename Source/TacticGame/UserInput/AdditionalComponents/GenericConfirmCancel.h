@@ -86,6 +86,11 @@ public:
 		m_InspectionRenderCapture = BG_Renderer;
 	}
 
+	TObjectPtr<class UInspectionDetails_Window> GetUIReference() const
+	{
+		return m_InspectionUI_Overlay;
+	}
+
 private:
 
 	virtual bool CancelAction() override;
