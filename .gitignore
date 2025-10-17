@@ -48,3 +48,6 @@ Content/Prototyping
 Content/LBaseModel
 Content/AssassinGirl
 Content/Ninja
+
+# Plugins to not include
+Plugins/DLSS
