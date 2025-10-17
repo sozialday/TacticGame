@@ -631,11 +631,13 @@ void ACursorBase::Inspect_Unit(FKey Key)
 	{
 		// lets only the currently selected unit be visible on the capture
 		m_InspectionRenderCapture->GetCaptureComponent2D()->ShowOnlyActorComponents(Unit);
+		m_InspectionRenderCapture->UnitReference = Unit;
+		m_InspectionRenderCapture->EnableTicking = true;
 
-		m_InspectionRenderCapture->AttachToComponent(Unit->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+		/*m_InspectionRenderCapture->AttachToComponent(Unit->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale,
 			FName("pelvis"));
 		m_InspectionRenderCapture->SetActorRelativeLocation(FVector(85, 260, 1));
-		m_InspectionRenderCapture->SetActorRelativeRotation(FRotator(0.0, -101.0, 90.0));
+		m_InspectionRenderCapture->SetActorRelativeRotation(FRotator(0.0, -101.0, 90.0));*/
 	}
 
 	m_InspectionUI_Overlay = CreateWidget<UInspectionDetails_Window>(GetWorld(), m_InspectionUI_class);

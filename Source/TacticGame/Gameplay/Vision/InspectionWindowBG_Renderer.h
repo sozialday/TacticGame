@@ -17,4 +17,13 @@ class TACTICGAME_API AInspectionWindowBG_Renderer : public ASceneCapture2D
 public:
 
 	AInspectionWindowBG_Renderer();
+
+	TObjectPtr<class AUnitCharacterBase> UnitReference = nullptr;
+	bool EnableTicking = false;
+
+private:
+
+
+	virtual void Tick(float DeltaTime) override;
+
 };
